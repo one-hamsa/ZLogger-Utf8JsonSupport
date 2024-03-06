@@ -367,17 +367,6 @@ namespace ZLogger
 
                 if (!didDrop) continue;
 
-                if (dropSummary[LogLevel.Trace]       == 0 &&
-                    dropSummary[LogLevel.Debug]       == 0 &&
-                    dropSummary[LogLevel.Information] == 0 &&
-                    dropSummary[LogLevel.Warning]     == 0 &&
-                    dropSummary[LogLevel.Error]       == 0 &&
-                    dropSummary[LogLevel.Critical]    == 0 &&
-                    dropSummary[LogLevel.None]        == 0)
-                {
-                    continue;
-                }
-
                 try
                 {
                     CheckPostsTimesAndSetIsSpamming();
