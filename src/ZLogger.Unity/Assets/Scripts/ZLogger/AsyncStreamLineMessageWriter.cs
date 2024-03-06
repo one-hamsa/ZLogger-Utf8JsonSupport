@@ -146,11 +146,11 @@ namespace ZLogger
                 }
                 else
                 {
-                    bool tryWrite;
-                    lock (lockObject) tryWrite = channel.Writer.TryWrite(log);
-
-                    if (tryWrite)
-                        postTimesQ.Enqueue(log.LogInfo.Timestamp);
+                    lock (lockObject)
+                    {
+                        if (channel.Writer.TryWrite(log))
+                            postTimesQ.Enqueue(log.LogInfo.Timestamp);
+                    }
                 }
             }
         }
