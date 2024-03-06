@@ -167,6 +167,18 @@ namespace ZLogger
             }
         }
 
+        /// <summary>
+        /// Check if the count in the <see cref="postTimesQ"/> are valid and within the time window <see cref="POSTS_SECONDS_WINDOW"/>
+        /// Clears the <see cref="postTimesQ"/> from invalid entries (older than the time window)
+        /// </summary>
+        /// <returns>
+        /// <ul>
+        /// <li> True if passed the spamming rate top limit <see cref="LIMIT_IN"/> </li>
+        /// <li> False if under the minimum to get out of spamming mode <see cref="LIMIT_OUT"/> </li>
+        /// <li> Null if still in the gray area (not spamming, but not out of spamming mode) </li>
+        /// </ul>
+        /// </returns>
+        /// <exception cref="Exception">Only when <see cref="DEBUG_SPAM"/> is true</exception>
         private bool? PostsTimesCheck()
         {
             DateTimeOffset currentDateTime = DateTimeOffset.Now;
