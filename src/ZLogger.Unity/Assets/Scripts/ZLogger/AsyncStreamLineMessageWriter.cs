@@ -17,43 +17,43 @@ namespace ZLogger
     public class AsyncStreamLineMessageWriter : IAsyncLogProcessor, IAsyncDisposable
     {
         readonly byte[] newLine;
-        readonly bool   crlf;
-        readonly byte   newLine1;
-        readonly byte   newLine2;
+        readonly bool crlf;
+        readonly byte newLine1;
+        readonly byte newLine2;
 
-        readonly Stream                  stream;
-        readonly Channel<IZLoggerEntry>  channel;
-        readonly Task                    writeLoop;
+        readonly Stream stream;
+        readonly Channel<IZLoggerEntry> channel;
+        readonly Task writeLoop;
         readonly Task                    summaryWriteLoop;
-        readonly ZLoggerOptions          options;
+        readonly ZLoggerOptions options;
         readonly CancellationTokenSource cancellationTokenSource;
 
         public AsyncStreamLineMessageWriter(Stream stream, ZLoggerOptions options)
         {
-            this.newLine                 = Encoding.UTF8.GetBytes(Environment.NewLine);
+            this.newLine = Encoding.UTF8.GetBytes(Environment.NewLine);
             this.cancellationTokenSource = new CancellationTokenSource();
             if (newLine.Length == 1)
             {
                 // cr or lf
                 this.newLine1 = newLine[0];
                 this.newLine2 = default;
-                this.crlf     = false;
+                this.crlf = false;
             }
             else
             {
                 // crlf(windows)
                 this.newLine1 = newLine[0];
                 this.newLine2 = newLine[1];
-                this.crlf     = true;
+                this.crlf = true;
             }
 
             this.options = options;
-            this.stream  = stream;
+            this.stream = stream;
             this.channel = Channel.CreateUnbounded<IZLoggerEntry>(new UnboundedChannelOptions
             {
                 AllowSynchronousContinuations = false, // always should be in async loop.
-                SingleWriter                  = false,
-                SingleReader                  = true,
+                SingleWriter = false,
+                SingleReader = true,
             });
 
             this.writeLoop        = Task.Run(WriteLoop);
@@ -225,7 +225,7 @@ namespace ZLogger
             {
                 if (crlf)
                 {
-                    buffer[index]     = newLine1;
+                    buffer[index] = newLine1;
                     buffer[index + 1] = newLine2;
                     writer.Advance(2);
                 }
@@ -244,12 +244,12 @@ namespace ZLogger
 
         private static object allThreadsLock = new();
 
-        private async Task WriteLoop()
+        async Task WriteLoop()
         {
-            var            writer = new StreamBufferWriter(stream);
-            var            reader = channel.Reader;
-            var            sw     = Stopwatch.StartNew();
-            IZLoggerEntry? value  = default;
+            var writer = new StreamBufferWriter(stream);
+            var reader = channel.Reader;
+            var sw = Stopwatch.StartNew();
+            IZLoggerEntry? value = default;
             try
             {
                 while (await reader.WaitToReadAsync().ConfigureAwait(false))
@@ -269,7 +269,7 @@ namespace ZLogger
                                 if (payload is ILogEvent logEvent)
                                     value.LogInfo
                                         = new LogInfo(info.LogId, info.CategoryName, info.Timestamp, info.LogLevel,
-                                                      logEvent.GetEventId(), info.Exception);
+                                            logEvent.GetEventId(), info.Exception);
 
                                 if (options.EnableStructuredLogging)
                                 {
@@ -303,13 +303,13 @@ namespace ZLogger
                             if (options.FlushRate != null && !cancellationTokenSource.IsCancellationRequested)
                             {
                                 sw.Stop();
-                                TimeSpan sleepTime = options.FlushRate.Value - sw.Elapsed;
+                                var sleepTime = options.FlushRate.Value - sw.Elapsed;
                                 if (sleepTime > TimeSpan.Zero)
                                 {
                                     try
                                     {
                                         await Task.Delay(sleepTime, cancellationTokenSource.Token)
-                                                  .ConfigureAwait(false);
+                                            .ConfigureAwait(false);
                                     }
                                     catch (OperationCanceledException)
                                     {
@@ -336,10 +336,7 @@ namespace ZLogger
                                 Console.WriteLine(ex);
                             }
                         }
-                        catch
-                        {
-                            // ignored
-                        }
+                        catch { }
                     }
                 }
             }
