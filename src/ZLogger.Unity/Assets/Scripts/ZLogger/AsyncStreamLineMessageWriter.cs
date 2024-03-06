@@ -365,7 +365,9 @@ namespace ZLogger
             {
                 await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationTokenSource.Token).ConfigureAwait(false);
 
-                if (!didDrop) continue;
+                lock (lockObject)
+                    if (!didDrop)
+                        continue;
 
                 try
                 {
@@ -431,7 +433,7 @@ namespace ZLogger
                 }
                 finally
                 {
-                    didDrop = false;
+                    lock (lockObject) didDrop = false;
                 }
             }
         }
