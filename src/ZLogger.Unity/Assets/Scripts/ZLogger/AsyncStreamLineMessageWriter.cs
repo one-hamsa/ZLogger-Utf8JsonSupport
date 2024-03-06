@@ -82,76 +82,74 @@ namespace ZLogger
         private readonly ConcurrentQueue<DateTimeOffset> postTimesQ                  = new();
         private readonly ConcurrentQueue<DateTimeOffset> postTimesTempQ              = new();
         private readonly ArrayBufferWriter<byte>         bufferWriterForDebugSpamMsg = new();
-        
+
         private static readonly object lockObject = new();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Post(IZLoggerEntry log)
         {
-            
-    #pragma warning disable 162
-                if (!ENABLE_SPAM_DROPPER)
+#pragma warning disable 162
+            if (!ENABLE_SPAM_DROPPER)
+            {
+                channel.Writer.TryWrite(log);
+                return;
+            }
+#pragma warning restore 162
+
+            CheckPostsTimesAndSetIsSpamming();
+
+            if (isSpamming)
+            {
+                if (DEBUG_SPAM)
                 {
-                    channel.Writer.TryWrite(log);
-                    return;
-                }
-    #pragma warning restore 162
-    
-                CheckPostsTimesAndSetIsSpamming();
-    
-                if (isSpamming)
-                {
-                    if (DEBUG_SPAM)
-                    {
-                        var logInfo = new LogInfo(
-                            log.LogInfo.LogId,
-                            "ZLogger",
-                            log.LogInfo.Timestamp,
-                            log.LogInfo.LogLevel,
-                            log.LogInfo.EventId,
-                            log.LogInfo.Exception
+                    var logInfo = new LogInfo(
+                        log.LogInfo.LogId,
+                        "ZLogger",
+                        log.LogInfo.Timestamp,
+                        log.LogInfo.LogLevel,
+                        log.LogInfo.EventId,
+                        log.LogInfo.Exception
+                    );
+
+                    bufferWriterForDebugSpamMsg.Clear();
+                    bufferWriterForDebugSpamMsg.Write(Encoding.UTF8.GetBytes("\""));
+                    log.FormatUtf8(bufferWriterForDebugSpamMsg, new(), null);
+                    bufferWriterForDebugSpamMsg.Write(Encoding.UTF8.GetBytes("\""));
+                    string logStr = Encoding.UTF8.GetString(bufferWriterForDebugSpamMsg.WrittenSpan);
+
+                    IZLoggerEntry? entry =
+                        FormatLogState<object, int, int, int, int, int, int, int, bool, int, string>.Factory(
+                            new(
+                                null,
+                                "LOG DROPPED {9}, postTimes.Count {8} did Drop: {7}. Dropping: ({0}) Trace. ({1}) Debug. ({2})  Information. ({3})  Warning. ({4})  Error. ({5})  Critical. ({6})  None",
+                                dropSummary[LogLevel.Trace],
+                                dropSummary[LogLevel.Debug],
+                                dropSummary[LogLevel.Information],
+                                dropSummary[LogLevel.Warning],
+                                dropSummary[LogLevel.Error],
+                                dropSummary[LogLevel.Critical],
+                                dropSummary[LogLevel.None],
+                                didDrop,
+                                postTimesQ.Count,
+                                logStr
+                            ),
+                            logInfo
                         );
-    
-                        bufferWriterForDebugSpamMsg.Clear();
-                        bufferWriterForDebugSpamMsg.Write(Encoding.UTF8.GetBytes("\""));
-                        log.FormatUtf8(bufferWriterForDebugSpamMsg, new(), null);
-                        bufferWriterForDebugSpamMsg.Write(Encoding.UTF8.GetBytes("\""));
-                        string logStr = Encoding.UTF8.GetString(bufferWriterForDebugSpamMsg.WrittenSpan);
-    
-                        IZLoggerEntry? entry =
-                            FormatLogState<object, int, int, int, int, int, int, int, bool, int, string>.Factory(
-                                new(
-                                    null,
-                                    "LOG DROPPED {9}, postTimes.Count {8} did Drop: {7}. Dropping: ({0}) Trace. ({1}) Debug. ({2})  Information. ({3})  Warning. ({4})  Error. ({5})  Critical. ({6})  None",
-                                    dropSummary[LogLevel.Trace],
-                                    dropSummary[LogLevel.Debug],
-                                    dropSummary[LogLevel.Information],
-                                    dropSummary[LogLevel.Warning],
-                                    dropSummary[LogLevel.Error],
-                                    dropSummary[LogLevel.Critical],
-                                    dropSummary[LogLevel.None],
-                                    didDrop,
-                                    postTimesQ.Count,
-                                    logStr
-                                ),
-                                logInfo
-                            );
-    
-                        lock (lockObject) channel.Writer.TryWrite(entry);
-                    }
-    
-                    dropSummary[log.LogInfo.LogLevel]++;
-                    lock (lockObject) didDrop = true;
+
+                    lock (lockObject) channel.Writer.TryWrite(entry);
                 }
-                else
+
+                dropSummary[log.LogInfo.LogLevel]++;
+                lock (lockObject) didDrop = true;
+            }
+            else
+            {
+                lock (lockObject)
                 {
-                    lock (lockObject)
-                    {
-                        if (channel.Writer.TryWrite(log))
-                            postTimesQ.Enqueue(log.LogInfo.Timestamp);
-                    }
+                    if (channel.Writer.TryWrite(log))
+                        postTimesQ.Enqueue(log.LogInfo.Timestamp);
                 }
-            
+            }
         }
 
         private bool CheckPostsTimesAndSetIsSpamming()
@@ -173,10 +171,10 @@ namespace ZLogger
         {
             DateTimeOffset currentDateTime = DateTimeOffset.Now;
 
-            #pragma warning disable 162
+#pragma warning disable 162
             if (DEBUG_SPAM && postTimesTempQ.Count > 0)
                 throw new Exception("postTimesQH.Count > 0");
-            #pragma warning restore 162
+#pragma warning restore 162
 
             postTimesTempQ.Clear(); // technically redundant
 
@@ -190,10 +188,10 @@ namespace ZLogger
                 }
             }
 
-            #pragma warning disable 162
+#pragma warning disable 162
             if (DEBUG_SPAM && postTimesQ.Count > 0)
                 throw new Exception("postTimesQ.Count > 0");
-            #pragma warning restore 162
+#pragma warning restore 162
 
             postTimesQ.Clear(); // technically redundant
             while (postTimesTempQ.TryDequeue(out var postTime))
