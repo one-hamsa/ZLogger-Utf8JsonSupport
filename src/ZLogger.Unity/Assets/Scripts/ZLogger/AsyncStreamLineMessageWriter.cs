@@ -88,8 +88,7 @@ namespace ZLogger
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Post(IZLoggerEntry log)
         {
-            // lock (lockObject)
-            {
+            
     #pragma warning disable 162
                 if (!ENABLE_SPAM_DROPPER)
                 {
@@ -152,7 +151,7 @@ namespace ZLogger
                             postTimesQ.Enqueue(log.LogInfo.Timestamp);
                     }
                 }
-            }
+            
         }
 
         private bool CheckPostsTimesAndSetIsSpamming()
