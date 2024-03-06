@@ -444,8 +444,7 @@ namespace ZLogger
             {
                 channel.Writer.Complete();
                 cancellationTokenSource.Cancel();
-                await writeLoop.ConfigureAwait(false);
-                await summaryWriteLoop.ConfigureAwait(false);
+                await Task.WhenAll(writeLoop, summaryWriteLoop).ConfigureAwait(false);
             }
             finally
             {
