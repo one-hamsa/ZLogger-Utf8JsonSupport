@@ -8,7 +8,7 @@ namespace ZLogger
 {
     public class AsyncProcessZLogger : ILogger
     {
-        public static int globalLogId;
+        public static int globalLogId = -1;
         readonly Func<string, Exception?, string> ReturnStringStateFormatter = (state, _) => state;
 
         readonly string categoryName;
@@ -24,9 +24,7 @@ namespace ZLogger
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
         {
-            var logId = globalLogId;
-            if (shouldIncrementLogId)
-                Interlocked.Increment(ref globalLogId);
+            var logId = shouldIncrementLogId ? Interlocked.Increment(ref globalLogId) : globalLogId;
             
             var factory = CreateLogEntry<TState>.factory;
             if (factory != null)

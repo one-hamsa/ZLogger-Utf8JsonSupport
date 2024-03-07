@@ -380,9 +380,11 @@ namespace ZLogger
                     // create summary log entry
                     try
                     {
+                        int logId = Interlocked.Increment(ref AsyncProcessZLogger.globalLogId);
+
                         Exception? exception = null; // can add an exception new Exception("Log spamming detected")
                         var logInfo = new LogInfo(
-                            0,
+                            logId,
                             "ZLogger",
                             DateTimeOffset.Now,
                             LogLevel.Critical,
