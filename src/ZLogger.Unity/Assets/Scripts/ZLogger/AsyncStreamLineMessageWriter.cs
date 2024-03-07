@@ -62,9 +62,9 @@ namespace ZLogger
 
         private const bool ENABLE_SPAM_DROPPER  = true;
         private const bool DEBUG_SPAM           = false;
-        private const uint LIMIT_IN             = 3;
-        private const uint LIMIT_OUT            = 2;
-        private const uint POSTS_SECONDS_WINDOW = 1;
+        private const uint LIMIT_IN             = 200;
+        private const uint LIMIT_OUT            = 150;
+        private const uint POSTS_SECONDS_WINDOW = 5;
         private       bool isSpamming;
         private       bool didDrop;
 
