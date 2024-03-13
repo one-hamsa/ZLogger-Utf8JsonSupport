@@ -141,13 +141,16 @@ namespace ZLogger
                         channel.Writer.TryWrite(entry);
                     }
 
-                    dropSummary[log.LogInfo.LogLevel]++;
-                    didDrop = true;
+                    if (log.LogInfo.LogLevel is not LogLevel.Trace) {
+                        dropSummary[log.LogInfo.LogLevel]++;
+                        didDrop = true;
+                    }
                 }
                 else
                 {
                     if (channel.Writer.TryWrite(log))
-                        postTimesQ.Enqueue(log.LogInfo.Timestamp);
+                        if (log.LogInfo.LogLevel is not LogLevel.Trace)
+                            postTimesQ.Enqueue(log.LogInfo.Timestamp);
                 }
             }
         }
