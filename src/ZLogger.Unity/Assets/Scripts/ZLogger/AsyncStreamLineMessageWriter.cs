@@ -104,6 +104,7 @@ namespace ZLogger
                 {
                     if (DEBUG_SPAM)
                     {
+#pragma warning disable 162
                         var logInfo = new LogInfo(
                             log.LogInfo.LogId,
                             "ZLogger",
@@ -139,6 +140,7 @@ namespace ZLogger
                             );
 
                         channel.Writer.TryWrite(entry);
+#pragma warning restore 162
                     }
 
                     if (log.LogInfo.LogLevel is not LogLevel.Trace) {
