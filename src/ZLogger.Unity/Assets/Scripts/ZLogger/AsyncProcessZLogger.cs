@@ -2,7 +2,9 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Linq.Expressions;
 using System.Threading;
+using UnityEngine;
 using ZLogger.Entries;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace ZLogger
 {
@@ -21,7 +23,8 @@ namespace ZLogger
             this.logProcessor = logProcessor;
             this.shouldIncrementLogId = shouldIncrementLogId;
         }
-
+        
+        [HideInCallstack]
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
         {
             var logId = shouldIncrementLogId ? Interlocked.Increment(ref globalLogId) : globalLogId;

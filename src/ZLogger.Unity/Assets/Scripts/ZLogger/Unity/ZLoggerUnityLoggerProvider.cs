@@ -7,7 +7,9 @@ using Microsoft.Extensions.Logging.Configuration;
 using Microsoft.Extensions.Options;
 using System;
 using System.Threading.Tasks;
+using UnityEngine;
 using ZLogger.Providers;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace ZLogger.Providers
 {
@@ -45,6 +47,7 @@ namespace ZLogger.Providers
             return default;
         }
 
+        [HideInCallstack]
         public void Post(IZLoggerEntry log)
         {
             try
