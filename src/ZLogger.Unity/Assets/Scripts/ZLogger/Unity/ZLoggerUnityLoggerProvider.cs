@@ -10,17 +10,32 @@ using System.Threading.Tasks;
 using UnityEngine;
 using ZLogger.Providers;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
+using Object = UnityEngine.Object;
 
 namespace ZLogger.Providers
 {
     [ProviderAlias("ZLoggerUnity")]
     public class ZLoggerUnityLoggerProvider : ILoggerProvider
     {
+        // HACK: pass context and then check it in IsProviderContext to avoid echoing custom logs twice
+        //. (because we also promote custom logs that are > Debug to Unity Debug.Log)
+        private static Object _providerContext;
+        private static Object GetProviderContext()
+        {
+            if (ReferenceEquals(_providerContext, null))
+                _providerContext = new Object();
+            return _providerContext;
+        }
+        public static bool IsProviderContext(Object context)
+        {
+            return ReferenceEquals(context, _providerContext);
+        }
+
         UnityDebugLogProcessor debugLogProcessor;
 
         public ZLoggerUnityLoggerProvider(IOptions<ZLoggerOptions> options)
         {
-            this.debugLogProcessor = new UnityDebugLogProcessor(options.Value);
+            this.debugLogProcessor = new UnityDebugLogProcessor(options.Value, GetProviderContext());
         }
 
         public ILogger CreateLogger(string categoryName)
@@ -36,10 +51,12 @@ namespace ZLogger.Providers
     public class UnityDebugLogProcessor : IAsyncLogProcessor
     {
         readonly ZLoggerOptions options;
+        readonly Object providerContext;
 
-        public UnityDebugLogProcessor(ZLoggerOptions options)
+        public UnityDebugLogProcessor(ZLoggerOptions options, Object providerContext)
         {
             this.options = options;
+            this.providerContext = providerContext;
         }
 
         public ValueTask DisposeAsync()
@@ -58,20 +75,20 @@ namespace ZLogger.Providers
                     case LogLevel.Trace:
                     case LogLevel.Debug:
                     case LogLevel.Information:
-                        UnityEngine.Debug.Log(msg);
+                        UnityEngine.Debug.Log(msg, providerContext);
                         break;
                     case LogLevel.Warning:
-                        UnityEngine.Debug.LogWarning(msg);
+                        UnityEngine.Debug.LogWarning(msg, providerContext);
                         break;
                     case LogLevel.Error:
                     case LogLevel.Critical:
                         if (log.LogInfo.Exception != null)
                         {
-                            UnityEngine.Debug.LogException(log.LogInfo.Exception);
+                            UnityEngine.Debug.LogException(log.LogInfo.Exception, providerContext);
                         }
                         else
                         {
-                            UnityEngine.Debug.LogError(msg);
+                            UnityEngine.Debug.LogError(msg, providerContext);
                         }
                         break;
                     case LogLevel.None:
