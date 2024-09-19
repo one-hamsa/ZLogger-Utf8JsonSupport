@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using UnityEngine;
 using ZLogger.Entries;
 
 namespace ZLogger
@@ -85,7 +86,7 @@ namespace ZLogger
 
         private static readonly object lockObject = new();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining), HideInCallstack]
         public void Post(IZLoggerEntry log)
         {
 #pragma warning disable 162

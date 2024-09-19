@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
+using UnityEngine;
 
 namespace ZLogger.Entries
 {
@@ -26,6 +27,7 @@ namespace ZLogger.Entries
             Message = message;
         }
 
+        [HideInCallstack]
         static IZLoggerEntry factory(MessageLogState<TPayload> self, LogInfo logInfo)
         {
             return self.CreateLogEntry(logInfo);

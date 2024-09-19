@@ -8,6 +8,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Runtime.CompilerServices;
+using UnityEngine;
 
 namespace ZLogger.Entries
 {
@@ -26,6 +27,7 @@ namespace ZLogger.Entries
             Arg1 = arg1;
         }
 
+        [HideInCallstack]
         static IZLoggerEntry factory(FormatLogState<TPayload, T1> self, LogInfo logInfo)
         {
             return self.CreateLogEntry(logInfo);
