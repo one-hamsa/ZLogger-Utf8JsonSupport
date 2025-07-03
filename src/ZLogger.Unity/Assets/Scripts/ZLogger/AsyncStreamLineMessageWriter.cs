@@ -364,83 +364,106 @@ namespace ZLogger
 
         private async Task SummaryWriteLoop()
         {
-            while (true)
+            try
             {
-                await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationTokenSource.Token).ConfigureAwait(false);
-
-                lock (lockObject)
+                while (true)
                 {
-                    if (!didDrop) continue;
+                    await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationTokenSource.Token)
+                        .ConfigureAwait(false);
 
-                    try
+                    lock (lockObject)
                     {
-                        CheckPostsTimesAndSetIsSpamming();
-                    }
-                    catch
-                    {
-                        // ignored
-                    }
+                        if (!didDrop) continue;
 
-                    if (isSpamming) continue;
+                        try
+                        {
+                            CheckPostsTimesAndSetIsSpamming();
+                        }
+                        catch
+                        {
+                            // ignored
+                        }
 
-                    // create summary log entry
-                    try
-                    {
-                        int logId = Interlocked.Increment(ref AsyncProcessZLogger.globalLogId);
+                        if (isSpamming) continue;
 
-                        Exception? exception = null; // can add an exception new Exception("Log spamming detected")
-                        var logInfo = new LogInfo(
-                            logId,
-                            "ZLogger",
-                            DateTimeOffset.Now,
-                            LogLevel.Critical,
-                            new EventId(0),
-                            exception
-                        );
+                        // create summary log entry
+                        try
+                        {
+                            int logId = Interlocked.Increment(ref AsyncProcessZLogger.globalLogId);
 
-                        int droppedCount = dropSummary[LogLevel.Critical]
-                                         + dropSummary[LogLevel.Error]
-                                         + dropSummary[LogLevel.Warning]
-                                         + dropSummary[LogLevel.Information]
-                                         + dropSummary[LogLevel.Debug]
-                                         + dropSummary[LogLevel.Trace];
-
-                        IZLoggerEntry? entry =
-                            FormatLogState<object, int, int, int, int, int, int, int, uint, uint>.Factory(
-                                new
-                                (
-                                    null,
-                                    "Truncated {0} log messages (Critical: {1}, Error: {2}, Warning: {3}, Information: {4}, Debug: {5}, Trace: {6}) because had more than {7} logs in {8} seconds",
-                                    droppedCount,
-                                    dropSummary[LogLevel.Critical],
-                                    dropSummary[LogLevel.Error],
-                                    dropSummary[LogLevel.Warning],
-                                    dropSummary[LogLevel.Information],
-                                    dropSummary[LogLevel.Debug],
-                                    dropSummary[LogLevel.Trace],
-                                    LIMIT_IN,
-                                    POSTS_SECONDS_WINDOW
-                                ),
-                                logInfo
+                            Exception? exception = null; // can add an exception new Exception("Log spamming detected")
+                            var logInfo = new LogInfo(
+                                logId,
+                                "ZLogger",
+                                DateTimeOffset.Now,
+                                LogLevel.Critical,
+                                new EventId(0),
+                                exception
                             );
 
-                        channel.Writer.TryWrite(entry);
+                            int droppedCount = dropSummary[LogLevel.Critical]
+                                               + dropSummary[LogLevel.Error]
+                                               + dropSummary[LogLevel.Warning]
+                                               + dropSummary[LogLevel.Information]
+                                               + dropSummary[LogLevel.Debug]
+                                               + dropSummary[LogLevel.Trace];
 
-                        // reset drop summary
-                        foreach (var key in dropSummary.Keys)
+                            IZLoggerEntry? entry =
+                                FormatLogState<object, int, int, int, int, int, int, int, uint, uint>.Factory(
+                                    new
+                                    (
+                                        null,
+                                        "Truncated {0} log messages (Critical: {1}, Error: {2}, Warning: {3}, Information: {4}, Debug: {5}, Trace: {6}) because had more than {7} logs in {8} seconds",
+                                        droppedCount,
+                                        dropSummary[LogLevel.Critical],
+                                        dropSummary[LogLevel.Error],
+                                        dropSummary[LogLevel.Warning],
+                                        dropSummary[LogLevel.Information],
+                                        dropSummary[LogLevel.Debug],
+                                        dropSummary[LogLevel.Trace],
+                                        LIMIT_IN,
+                                        POSTS_SECONDS_WINDOW
+                                    ),
+                                    logInfo
+                                );
+
+                            channel.Writer.TryWrite(entry);
+
+                            // reset drop summary
+                            foreach (var key in dropSummary.Keys)
+                            {
+                                dropSummary[key] = 0;
+                            }
+                        }
+                        catch
                         {
-                            dropSummary[key] = 0;
+                            // ignored
+                        }
+                        finally
+                        {
+                            didDrop = false;
                         }
                     }
-                    catch
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // expected when disposing
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    if (options.InternalErrorLogger != null)
                     {
-                        // ignored
+                        options.InternalErrorLogger(default, ex, null);
                     }
-                    finally
+                    else
                     {
-                        didDrop = false;
+                        Console.WriteLine(ex);
                     }
                 }
+                catch { }
             }
         }
 
