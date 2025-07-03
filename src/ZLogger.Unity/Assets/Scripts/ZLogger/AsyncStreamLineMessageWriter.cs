@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using UnityEngine;
 using ZLogger.Entries;
+using Debug = UnityEngine.Debug;
 
 namespace ZLogger
 {
@@ -57,8 +58,22 @@ namespace ZLogger
                 SingleReader = true,
             });
 
-            this.writeLoop        = Task.Run(WriteLoop);
-            this.summaryWriteLoop = Task.Run(SummaryWriteLoop);
+            this.writeLoop = Task.Run(WriteLoop).ContinueWith(t =>
+            {
+                if (t.IsFaulted && t.Exception != null)
+                {
+                    // Log but don't crash
+                    Debug.LogException(t.Exception);
+                }
+            }, TaskContinuationOptions.OnlyOnFaulted);
+            this.summaryWriteLoop = Task.Run(SummaryWriteLoop).ContinueWith(t =>
+            {
+                if (t.IsFaulted && t.Exception != null)
+                {
+                    // Log but don't crash
+                    Debug.LogException(t.Exception);
+                }
+            }, TaskContinuationOptions.OnlyOnFaulted);
         }
 
         private const bool ENABLE_SPAM_DROPPER  = true;
