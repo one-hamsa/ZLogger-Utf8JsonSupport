@@ -30,6 +30,8 @@ namespace ZLogger
         readonly ZLoggerOptions options;
         readonly CancellationTokenSource cancellationTokenSource;
 
+        public static bool ignoreDelay = false;
+
         public AsyncStreamLineMessageWriter(Stream stream, ZLoggerOptions options)
         {
             this.newLine = Encoding.UTF8.GetBytes(Environment.NewLine);
@@ -325,7 +327,7 @@ namespace ZLogger
                             {
                                 sw.Stop();
                                 var sleepTime = options.FlushRate.Value - sw.Elapsed;
-                                if (sleepTime > TimeSpan.Zero)
+                                if (sleepTime > TimeSpan.Zero && !ignoreDelay)
                                 {
                                     try
                                     {
