@@ -90,12 +90,17 @@ namespace ZLogger.Providers
                         {
                             UnityEngine.Debug.LogError(msg, providerContext);
                         }
+
                         break;
                     case LogLevel.None:
                         break;
                     default:
                         break;
                 }
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.LogException(e, providerContext);
             }
             finally
             {

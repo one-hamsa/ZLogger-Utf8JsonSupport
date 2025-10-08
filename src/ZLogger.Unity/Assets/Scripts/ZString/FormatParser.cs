@@ -43,7 +43,7 @@ namespace Cysharp.Text
                 }
                 else
                 {
-                    ExceptionUtil.ThrowFormatError();
+                    ExceptionUtil.ThrowFormatError(format);
                     return ParserScanResult.NormalChar; // NOTE Don't reached
                 }
             }
@@ -85,7 +85,7 @@ namespace Cysharp.Text
                 }
                 else
                 {
-                    ExceptionUtil.ThrowFormatError();
+                    ExceptionUtil.ThrowFormatError(format.ToString());
                     return ParserScanResult.NormalChar; // NOTE Don't reached
                 }
             }
@@ -127,7 +127,7 @@ namespace Cysharp.Text
 
             if (i == len || !IsDigit(c = format[i]))
             {
-                ExceptionUtil.ThrowFormatError();
+                ExceptionUtil.ThrowFormatError(format.ToString());
             }
 
             int paramIndex = 0;
@@ -136,7 +136,7 @@ namespace Cysharp.Text
                 paramIndex = (paramIndex * 10) + c - '0';
 
                 if (++i == len)
-                    ExceptionUtil.ThrowFormatError();
+                    ExceptionUtil.ThrowFormatError(format.ToString());
 
                 c = format[i];
             }
@@ -144,7 +144,7 @@ namespace Cysharp.Text
 
             if (paramIndex >= ArgLengthLimit)
             {
-                ExceptionUtil.ThrowFormatException();
+                ExceptionUtil.ThrowFormatException(format.ToString());
             }
 
             // skip whitespace.
@@ -166,7 +166,7 @@ namespace Cysharp.Text
 
                 if (i == len)
                 {
-                    ExceptionUtil.ThrowFormatError();
+                    ExceptionUtil.ThrowFormatError(format.ToString());
                 }
 
                 var leftJustify = false;
@@ -175,14 +175,14 @@ namespace Cysharp.Text
                     leftJustify = true;
 
                     if (++i == len)
-                        ExceptionUtil.ThrowFormatError();
+                        ExceptionUtil.ThrowFormatError(format.ToString());
 
                     c = format[i];
                 }
 
                 if (!IsDigit(c))
                 {
-                    ExceptionUtil.ThrowFormatError();
+                    ExceptionUtil.ThrowFormatError(format.ToString());
                 }
 
                 do
@@ -190,7 +190,7 @@ namespace Cysharp.Text
                     alignment = (alignment * 10) + c - '0';
 
                     if (++i == len)
-                        ExceptionUtil.ThrowFormatError();
+                        ExceptionUtil.ThrowFormatError(format.ToString());
 
                     c = format[i];
                 }
@@ -217,7 +217,7 @@ namespace Cysharp.Text
                 {
                     if (i == len)
                     {
-                        ExceptionUtil.ThrowFormatError();
+                        ExceptionUtil.ThrowFormatError(format.ToString());
                     }
                     c = format[i];
 
@@ -227,7 +227,7 @@ namespace Cysharp.Text
                     }
                     else if (c == '{')
                     {
-                        ExceptionUtil.ThrowFormatError();
+                        ExceptionUtil.ThrowFormatError(format.ToString());
                     }
 
                     i++;
@@ -242,7 +242,7 @@ namespace Cysharp.Text
             else if (c != '}')
             {
                 // Unexpected character
-                ExceptionUtil.ThrowFormatError();
+                ExceptionUtil.ThrowFormatError(format.ToString());
             }
 
             i++; // Skip `}`
@@ -262,7 +262,7 @@ namespace Cysharp.Text
 
             if (i == len || !IsDigit(c = format[i]))
             {
-                ExceptionUtil.ThrowFormatError();
+                ExceptionUtil.ThrowFormatError(format);
             }
 
             int paramIndex = 0;
@@ -271,7 +271,7 @@ namespace Cysharp.Text
                 paramIndex = (paramIndex * 10) + c - '0';
 
                 if (++i == len)
-                    ExceptionUtil.ThrowFormatError();
+                    ExceptionUtil.ThrowFormatError(format);
 
                 c = format[i];
             }
@@ -279,7 +279,7 @@ namespace Cysharp.Text
 
             if (paramIndex >= ArgLengthLimit)
             {
-                ExceptionUtil.ThrowFormatException();
+                ExceptionUtil.ThrowFormatException(format);
             }
 
             // skip whitespace.
@@ -301,7 +301,7 @@ namespace Cysharp.Text
 
                 if (i == len)
                 {
-                    ExceptionUtil.ThrowFormatError();
+                    ExceptionUtil.ThrowFormatError(format);
                 }
 
                 var leftJustify = false;
@@ -310,14 +310,14 @@ namespace Cysharp.Text
                     leftJustify = true;
 
                     if (++i == len)
-                        ExceptionUtil.ThrowFormatError();
+                        ExceptionUtil.ThrowFormatError(format);
 
                     c = format[i];
                 }
 
                 if (!IsDigit(c))
                 {
-                    ExceptionUtil.ThrowFormatError();
+                    ExceptionUtil.ThrowFormatError(format);
                 }
 
                 do
@@ -325,7 +325,7 @@ namespace Cysharp.Text
                     alignment = (alignment * 10) + c - '0';
 
                     if (++i == len)
-                        ExceptionUtil.ThrowFormatError();
+                        ExceptionUtil.ThrowFormatError(format);
 
                     c = format[i];
                 }
@@ -352,7 +352,7 @@ namespace Cysharp.Text
                 {
                     if (i == len)
                     {
-                        ExceptionUtil.ThrowFormatError();
+                        ExceptionUtil.ThrowFormatError(format);
                     }
                     c = format[i];
 
@@ -362,7 +362,7 @@ namespace Cysharp.Text
                     }
                     else if (c == '{')
                     {
-                        ExceptionUtil.ThrowFormatError();
+                        ExceptionUtil.ThrowFormatError(format);
                     }
 
                     i++;
@@ -377,7 +377,7 @@ namespace Cysharp.Text
             else if (c != '}')
             {
                 // Unexpected character
-                ExceptionUtil.ThrowFormatError();
+                ExceptionUtil.ThrowFormatError(format);
             }
 
             i++; // Skip `}`
