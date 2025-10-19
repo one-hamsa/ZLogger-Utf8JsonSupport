@@ -50,7 +50,7 @@ namespace Cysharp.Text
                             AppendFormatInternal(arg1, indexParse.Alignment, writeFormat, nameof(arg1));
                             continue;
                         default:
-                            ThrowFormatException();
+                            ThrowFormatException(format);
                             break;
                     }
                 }
@@ -66,7 +66,7 @@ namespace Cysharp.Text
                     }
                     else
                     {
-                        ThrowFormatException();
+                        ThrowFormatException(format);
                     }
                 }
 
@@ -130,7 +130,7 @@ namespace Cysharp.Text
                             AppendFormatInternal(arg2, indexParse.Alignment, writeFormat, nameof(arg2));
                             continue;
                         default:
-                            ThrowFormatException();
+                            ThrowFormatException(format);
                             break;
                     }
                 }
@@ -146,7 +146,7 @@ namespace Cysharp.Text
                     }
                     else
                     {
-                        ThrowFormatException();
+                        ThrowFormatException(format);
                     }
                 }
 
@@ -213,7 +213,7 @@ namespace Cysharp.Text
                             AppendFormatInternal(arg3, indexParse.Alignment, writeFormat, nameof(arg3));
                             continue;
                         default:
-                            ThrowFormatException();
+                            ThrowFormatException(format);
                             break;
                     }
                 }
@@ -229,7 +229,7 @@ namespace Cysharp.Text
                     }
                     else
                     {
-                        ThrowFormatException();
+                        ThrowFormatException(format);
                     }
                 }
 
@@ -299,7 +299,7 @@ namespace Cysharp.Text
                             AppendFormatInternal(arg4, indexParse.Alignment, writeFormat, nameof(arg4));
                             continue;
                         default:
-                            ThrowFormatException();
+                            ThrowFormatException(format);
                             break;
                     }
                 }
@@ -315,7 +315,7 @@ namespace Cysharp.Text
                     }
                     else
                     {
-                        ThrowFormatException();
+                        ThrowFormatException(format);
                     }
                 }
 
@@ -388,7 +388,7 @@ namespace Cysharp.Text
                             AppendFormatInternal(arg5, indexParse.Alignment, writeFormat, nameof(arg5));
                             continue;
                         default:
-                            ThrowFormatException();
+                            ThrowFormatException(format);
                             break;
                     }
                 }
@@ -404,7 +404,7 @@ namespace Cysharp.Text
                     }
                     else
                     {
-                        ThrowFormatException();
+                        ThrowFormatException(format);
                     }
                 }
 
@@ -480,7 +480,7 @@ namespace Cysharp.Text
                             AppendFormatInternal(arg6, indexParse.Alignment, writeFormat, nameof(arg6));
                             continue;
                         default:
-                            ThrowFormatException();
+                            ThrowFormatException(format);
                             break;
                     }
                 }
@@ -496,7 +496,7 @@ namespace Cysharp.Text
                     }
                     else
                     {
-                        ThrowFormatException();
+                        ThrowFormatException(format);
                     }
                 }
 
@@ -575,7 +575,7 @@ namespace Cysharp.Text
                             AppendFormatInternal(arg7, indexParse.Alignment, writeFormat, nameof(arg7));
                             continue;
                         default:
-                            ThrowFormatException();
+                            ThrowFormatException(format);
                             break;
                     }
                 }
@@ -591,7 +591,7 @@ namespace Cysharp.Text
                     }
                     else
                     {
-                        ThrowFormatException();
+                        ThrowFormatException(format);
                     }
                 }
 
@@ -673,7 +673,7 @@ namespace Cysharp.Text
                             AppendFormatInternal(arg8, indexParse.Alignment, writeFormat, nameof(arg8));
                             continue;
                         default:
-                            ThrowFormatException();
+                            ThrowFormatException(format);
                             break;
                     }
                 }
@@ -689,7 +689,7 @@ namespace Cysharp.Text
                     }
                     else
                     {
-                        ThrowFormatException();
+                        ThrowFormatException(format);
                     }
                 }
 
@@ -774,7 +774,7 @@ namespace Cysharp.Text
                             AppendFormatInternal(arg9, indexParse.Alignment, writeFormat, nameof(arg9));
                             continue;
                         default:
-                            ThrowFormatException();
+                            ThrowFormatException(format);
                             break;
                     }
                 }
@@ -790,7 +790,7 @@ namespace Cysharp.Text
                     }
                     else
                     {
-                        ThrowFormatException();
+                        ThrowFormatException(format);
                     }
                 }
 
@@ -878,7 +878,7 @@ namespace Cysharp.Text
                             AppendFormatInternal(arg10, indexParse.Alignment, writeFormat, nameof(arg10));
                             continue;
                         default:
-                            ThrowFormatException();
+                            ThrowFormatException(format);
                             break;
                     }
                 }
@@ -894,7 +894,7 @@ namespace Cysharp.Text
                     }
                     else
                     {
-                        ThrowFormatException();
+                        ThrowFormatException(format);
                     }
                 }
 
@@ -985,7 +985,7 @@ namespace Cysharp.Text
                             AppendFormatInternal(arg11, indexParse.Alignment, writeFormat, nameof(arg11));
                             continue;
                         default:
-                            ThrowFormatException();
+                            ThrowFormatException(format);
                             break;
                     }
                 }
@@ -1001,7 +1001,7 @@ namespace Cysharp.Text
                     }
                     else
                     {
-                        ThrowFormatException();
+                        ThrowFormatException(format);
                     }
                 }
 
@@ -1095,7 +1095,7 @@ namespace Cysharp.Text
                             AppendFormatInternal(arg12, indexParse.Alignment, writeFormat, nameof(arg12));
                             continue;
                         default:
-                            ThrowFormatException();
+                            ThrowFormatException(format);
                             break;
                     }
                 }
@@ -1111,7 +1111,7 @@ namespace Cysharp.Text
                     }
                     else
                     {
-                        ThrowFormatException();
+                        ThrowFormatException(format);
                     }
                 }
 
@@ -1208,7 +1208,7 @@ namespace Cysharp.Text
                             AppendFormatInternal(arg13, indexParse.Alignment, writeFormat, nameof(arg13));
                             continue;
                         default:
-                            ThrowFormatException();
+                            ThrowFormatException(format);
                             break;
                     }
                 }
@@ -1224,7 +1224,7 @@ namespace Cysharp.Text
                     }
                     else
                     {
-                        ThrowFormatException();
+                        ThrowFormatException(format);
                     }
                 }
 
@@ -1324,7 +1324,7 @@ namespace Cysharp.Text
                             AppendFormatInternal(arg14, indexParse.Alignment, writeFormat, nameof(arg14));
                             continue;
                         default:
-                            ThrowFormatException();
+                            ThrowFormatException(format);
                             break;
                     }
                 }
@@ -1340,7 +1340,7 @@ namespace Cysharp.Text
                     }
                     else
                     {
-                        ThrowFormatException();
+                        ThrowFormatException(format);
                     }
                 }
 
@@ -1443,7 +1443,7 @@ namespace Cysharp.Text
                             AppendFormatInternal(arg15, indexParse.Alignment, writeFormat, nameof(arg15));
                             continue;
                         default:
-                            ThrowFormatException();
+                            ThrowFormatException(format);
                             break;
                     }
                 }
@@ -1459,7 +1459,7 @@ namespace Cysharp.Text
                     }
                     else
                     {
-                        ThrowFormatException();
+                        ThrowFormatException(format);
                     }
                 }
 
@@ -1565,7 +1565,7 @@ namespace Cysharp.Text
                             AppendFormatInternal(arg16, indexParse.Alignment, writeFormat, nameof(arg16));
                             continue;
                         default:
-                            ThrowFormatException();
+                            ThrowFormatException(format);
                             break;
                     }
                 }
@@ -1581,7 +1581,7 @@ namespace Cysharp.Text
                     }
                     else
                     {
-                        ThrowFormatException();
+                        ThrowFormatException(format);
                     }
                 }
 

@@ -395,9 +395,9 @@ namespace Cysharp.Text
             throw new ArgumentException("Can't format argument.", paramName);
         }
 
-        void ThrowFormatException()
+        void ThrowFormatException(string format)
         {
-            throw new FormatException("Index (zero based) must be greater than or equal to zero and less than the size of the argument list.");
+            throw new ZStringFormatException("Index (zero based) must be greater than or equal to zero and less than the size of the argument list.", format);
         }
 
         static void ThrowNestedException()

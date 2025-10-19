@@ -4,11 +4,11 @@ using System.Text;
 
 namespace Cysharp.Text
 {
-    public class ZLoggerFormatException : FormatException
+    public class ZStringFormatException : FormatException
     {
         public readonly string format;
 
-        public ZLoggerFormatException(string message, string format) : base(message)
+        public ZStringFormatException(string message, string format) : base(message)
         {
             this.format = format;
         }
@@ -28,12 +28,12 @@ namespace Cysharp.Text
 
         internal static void ThrowFormatException(string format)
         {
-            throw new ZLoggerFormatException("Index (zero based) must be greater than or equal to zero and less than the size of the argument list.", format);
+            throw new ZStringFormatException("Index (zero based) must be greater than or equal to zero and less than the size of the argument list.", format);
         }
 
         internal static void ThrowFormatError(string format)
         {
-            throw new ZLoggerFormatException("Input string was not in a correct format.", format);
+            throw new ZStringFormatException("Input string was not in a correct format.", format);
         }
     }
 }
