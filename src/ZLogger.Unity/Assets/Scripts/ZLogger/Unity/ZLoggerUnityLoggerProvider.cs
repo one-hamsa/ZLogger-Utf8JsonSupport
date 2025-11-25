@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Configuration;
 using Microsoft.Extensions.Options;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 using ZLogger.Providers;
@@ -69,7 +70,7 @@ namespace ZLogger.Providers
         {
             try
             {
-                var msg = log.FormatToString(options, null);
+                var msg = log.FormatToString(options);
                 switch (log.LogInfo.LogLevel)
                 {
                     case LogLevel.Trace:

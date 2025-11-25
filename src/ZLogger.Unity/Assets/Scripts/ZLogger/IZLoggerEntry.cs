@@ -16,12 +16,41 @@ namespace ZLogger
 
     public static class ZLoggerEntryExtensions
     {
-        public static string FormatToString(this IZLoggerEntry entry, ZLoggerOptions options, Utf8JsonWriter? jsonWriter)
+        public static string FormatToString(this IZLoggerEntry entry, ZLoggerOptions options)
         {
             var boxedBuilder = (IBufferWriter<byte>)ZString.CreateUtf8StringBuilder();
             try
             {
-                entry.FormatUtf8(boxedBuilder, options, jsonWriter);
+                var value = entry;
+
+                if (options.EnableStructuredLogging)
+                {
+                    var jsonWriter = options.GetThreadStaticUtf8JsonWriter(boxedBuilder);
+                    var info = value.LogInfo;
+                    var payload = value.GetPayload();
+                    if (payload is ILogEvent logEvent)
+                        value.LogInfo
+                            = new LogInfo(info.LogId, info.CategoryName, info.Timestamp, info.LogLevel,
+                                logEvent.GetEventId(), info.Exception);
+                    
+                    try
+                    {
+                        jsonWriter.WriteStartObject();
+
+                        value.FormatUtf8(boxedBuilder, options, jsonWriter);
+
+                        jsonWriter.WriteEndObject();
+                        jsonWriter.Flush();
+                    }
+                    finally
+                    {
+                        jsonWriter.Reset();
+                    }
+                }
+                else
+                {
+                    value.FormatUtf8(boxedBuilder, options, null);
+                }
                 return boxedBuilder.ToString()!;
             }
             finally
