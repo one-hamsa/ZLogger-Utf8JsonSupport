@@ -100,12 +100,16 @@ namespace ZLogger
         private readonly ConcurrentQueue<DateTimeOffset> postTimesQ                  = new();
         private readonly ConcurrentQueue<DateTimeOffset> postTimesTempQ              = new();
         private readonly ArrayBufferWriter<byte>         bufferWriterForDebugSpamMsg = new();
+        public int lastLogIdWritten { get; private set; }
+        public int lastLogIdQueued { get; private set; }
 
         private static readonly object lockObject = new();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining), HideInCallstack]
         public void Post(IZLoggerEntry log)
         {
+            lastLogIdQueued = Math.Max(log.LogInfo.LogId, lastLogIdQueued);
+            
 #pragma warning disable 162
             if (!ENABLE_SPAM_DROPPER)
             {
@@ -321,6 +325,7 @@ namespace ZLogger
                                 AppendLine(writer);
                             }
 
+                            var logId = info.LogId;
                             info = default;
 
                             if (options.FlushRate != null && !cancellationTokenSource.IsCancellationRequested)
@@ -341,6 +346,7 @@ namespace ZLogger
                             }
 
                             writer.Flush(); // flush before wait.
+                            lastLogIdWritten = Math.Max(logId, lastLogIdWritten);
 
                             sw.Reset();
                             sw.Start();

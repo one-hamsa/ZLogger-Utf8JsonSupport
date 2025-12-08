@@ -16,6 +16,9 @@ namespace ZLogger.Providers
         AsyncStreamLineMessageWriter streamWriter;
         private readonly bool isStructured;
 
+        public int lastLogIdWritten => streamWriter.lastLogIdWritten;
+        public int lastLogIdQueued => streamWriter.lastLogIdQueued;
+
         public ZLoggerFileLoggerProvider(string filePath, IOptionsMonitor<ZLoggerOptions> options)
             : this(filePath, DefaultOptionName, options)
         {
