@@ -115,6 +115,14 @@ namespace System.Text.Json
             WriteColon();
             _writer.Write(Utf8Json.JsonSerializer.Serialize(x));
         }
+        
+        public void WriteNumber(JsonEncodedText text, long x)
+        {
+            WriteCommaIfNeeded();
+            _writer.Write(Utf8Json.JsonSerializer.Serialize(text.ToString()));
+            WriteColon();
+            _writer.Write(Utf8Json.JsonSerializer.Serialize(x));
+        }
 
         public void WriteNullValue()
         {
