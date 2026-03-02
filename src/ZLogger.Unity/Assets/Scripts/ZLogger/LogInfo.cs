@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 using System;
-using System.Text.Json;
+using ZLogger.Bridge;
 using System.Threading;
 
 namespace ZLogger

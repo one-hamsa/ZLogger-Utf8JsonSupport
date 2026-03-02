@@ -3,7 +3,7 @@ using System.Buffers;
 using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Text.Json;
+using ZLogger.Bridge;
 
 namespace ZLogger.Entries
 {

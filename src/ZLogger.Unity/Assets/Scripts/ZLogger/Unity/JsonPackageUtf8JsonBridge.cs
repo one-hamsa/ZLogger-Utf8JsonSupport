@@ -5,13 +5,11 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.Encodings.Web;
-using System.Text.Unicode;
 using System.Threading.Tasks;
 using Utf8Json;
 using ZLogger;
 
-namespace System.Text.Json
+namespace ZLogger.Bridge
 {
     /// <summary>
     /// originally a shim, this is now a bridge to Utf8Json for Unity, to enable support for EnableStructuredLogging
@@ -56,7 +54,7 @@ namespace System.Text.Json
             _writer = writer;
             _streamWriter = writer as StreamBufferWriter;
         }
-        
+
         private void WriteCommaIfNeeded()
         {
             if (_isFirstProperty)
@@ -115,7 +113,7 @@ namespace System.Text.Json
             WriteColon();
             _writer.Write(Utf8Json.JsonSerializer.Serialize(x));
         }
-        
+
         public void WriteNumber(JsonEncodedText text, long x)
         {
             WriteCommaIfNeeded();
@@ -197,13 +195,10 @@ namespace System.Text.Json
     public sealed class JsonSerializerOptions
     {
         public bool WriteIndented { get; set; }
-        public System.Text.Json.Serialization.JsonIgnoreCondition DefaultIgnoreCondition { get; set; }
+        public JsonIgnoreCondition DefaultIgnoreCondition { get; set; }
         public JavaScriptEncoder Encoder { get; set; }
     }
-}
 
-namespace System.Text.Json.Serialization
-{
     public enum JsonIgnoreCondition
     {
         Never,
@@ -211,10 +206,7 @@ namespace System.Text.Json.Serialization
         WhenWritingDefault,
         WhenWritingNull
     }
-}
 
-namespace System.Text.Encodings.Web
-{
     public class JavaScriptEncoder
     {
         public static JavaScriptEncoder Create(UnicodeRange range)
@@ -222,10 +214,7 @@ namespace System.Text.Encodings.Web
             return new JavaScriptEncoder();
         }
     }
-}
 
-namespace System.Text.Unicode
-{
     public static class UnicodeRanges
     {
         public static UnicodeRange All { get; set; }

@@ -2,10 +2,7 @@ using System;
 using System.Buffers;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Text.Encodings.Web;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Text.Unicode;
+using ZLogger.Bridge;
 using System.Threading;
 
 namespace ZLogger

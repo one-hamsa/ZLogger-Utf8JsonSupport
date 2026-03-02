@@ -6,7 +6,7 @@ using System;
 using System.Buffers;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
-using System.Text.Json;
+using ZLogger.Bridge;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 

@@ -11,6 +11,7 @@ using System.Threading.Channels;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using UnityEngine;
+using ZLogger.Bridge;
 using ZLogger.Entries;
 using Debug = UnityEngine.Debug;
 
