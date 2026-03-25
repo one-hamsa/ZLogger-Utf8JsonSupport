@@ -14,6 +14,12 @@ namespace ZLogger
         public readonly EventId EventId;
         public readonly Exception? Exception;
 
+        // Pre-captured exception chain, snapshotted at log-call time on the calling thread.
+        // Accessing ex.StackTrace on the WriteLoop background thread triggers
+        // mono_get_generic_context_from_stack_frame which SIGSEGV-crashes Mono when
+        // the original call stack is no longer intact.
+        readonly CapturedExceptionInfo? capturedExceptionInfo;
+
         public LogInfo(int logId, string categoryName, DateTimeOffset timestamp, LogLevel logLevel, EventId eventId,
             Exception? exception)
         {
@@ -23,6 +29,27 @@ namespace ZLogger
             Timestamp = timestamp;
             LogLevel = logLevel;
             Exception = exception;
+            capturedExceptionInfo = exception != null ? new CapturedExceptionInfo(exception) : null;
+        }
+
+        /// Returns a copy with a different EventId, preserving the pre-captured exception info.
+        /// Use this instead of calling the public constructor when the exception was already captured
+        /// on the original thread — avoids re-accessing ex.StackTrace on the background WriteLoop.
+        internal LogInfo WithEventId(EventId eventId)
+        {
+            return new LogInfo(LogId, CategoryName, Timestamp, LogLevel, eventId, Exception, capturedExceptionInfo);
+        }
+
+        LogInfo(int logId, string categoryName, DateTimeOffset timestamp, LogLevel logLevel, EventId eventId,
+            Exception? exception, CapturedExceptionInfo? existingCapturedInfo)
+        {
+            LogId = logId;
+            EventId = eventId;
+            CategoryName = categoryName;
+            Timestamp = timestamp;
+            LogLevel = logLevel;
+            Exception = exception;
+            capturedExceptionInfo = existingCapturedInfo;
         }
 
         static readonly JsonEncodedText CategoryNameText = JsonEncodedText.Encode(nameof(CategoryName));
@@ -54,10 +81,10 @@ namespace ZLogger
             writer.WriteString(EventIdNameText, EventId.Name);
             writer.WriteDateTimeOffset(TimestampText, Timestamp);
             writer.WritePropertyName(ExceptionText);
-            WriteException(writer, Exception);
+            WriteException(writer, Exception, capturedExceptionInfo);
         }
 
-        static void WriteException(Utf8JsonWriter writer, Exception? ex)
+        static void WriteException(Utf8JsonWriter writer, Exception? ex, CapturedExceptionInfo? captured)
         {
             if (ex == null)
             {
@@ -69,10 +96,12 @@ namespace ZLogger
                 {
                     writer.WriteString(NameText, ex.GetType().FullName);
                     writer.WriteString(MessageText, ex.Message);
-                    writer.WriteString(StackTraceText, ex.StackTrace);
+                    // Use pre-captured stack trace to avoid calling ex.StackTrace on the background
+                    // WriteLoop thread, which triggers Mono's native stack walker and can SIGSEGV.
+                    writer.WriteString(StackTraceText, captured?.StackTrace);
                     writer.WritePropertyName(InnerExceptionText);
                     {
-                        WriteException(writer, ex.InnerException);
+                        WriteException(writer, ex.InnerException, captured?.Inner);
                     }
                 }
                 writer.WriteEndObject();
@@ -99,6 +128,29 @@ namespace ZLogger
                     return None;
                 default:
                     return JsonEncodedText.Encode(((int)logLevel).ToString());
+            }
+        }
+
+        // Eagerly captures the StackTrace string from an exception chain at log-call time,
+        // while the calling thread's stack is still intact. This is a plain class so it
+        // can hold a nullable reference to the inner chain without boxing in the struct.
+        private sealed class CapturedExceptionInfo
+        {
+            public readonly string? StackTrace;
+            public readonly CapturedExceptionInfo? Inner;
+
+            public CapturedExceptionInfo(Exception ex)
+            {
+                try
+                {
+                    StackTrace = ex.StackTrace;
+                }
+                catch
+                {
+                    StackTrace = "<stack trace unavailable>";
+                }
+
+                Inner = ex.InnerException != null ? new CapturedExceptionInfo(ex.InnerException) : null;
             }
         }
     }

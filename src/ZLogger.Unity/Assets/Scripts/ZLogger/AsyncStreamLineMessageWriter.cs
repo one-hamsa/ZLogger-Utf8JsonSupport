@@ -295,9 +295,7 @@ namespace ZLogger
                                 // OP: try to rewrite event id from payload if exists (see ILogEvent.cs)
                                 var payload = value.GetPayload();
                                 if (payload is ILogEvent logEvent)
-                                    value.LogInfo
-                                        = new LogInfo(info.LogId, info.CategoryName, info.Timestamp, info.LogLevel,
-                                            logEvent.GetEventId(), info.Exception);
+                                    value.LogInfo = info.WithEventId(logEvent.GetEventId());
 
                                 if (options.EnableStructuredLogging)
                                 {

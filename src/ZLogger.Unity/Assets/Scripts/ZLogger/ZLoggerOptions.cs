@@ -79,7 +79,11 @@ namespace ZLogger
             var className = exception.GetType().FullName;
             var message = exception.Message;
             var innerException = exception.InnerException;
-            var stackTrace = exception.StackTrace; // allocating stacktrace string but okay(shoganai).
+            // Wrap StackTrace access: on Mono, ex.StackTrace walks the native stack
+            // via mono_get_generic_context_from_stack_frame and can SIGSEGV on the background WriteLoop thread.
+            string? stackTrace;
+            try { stackTrace = exception.StackTrace; }
+            catch { stackTrace = "<stack trace unavailable>"; }
 
             Write(writer, className!, ": ", message ?? "");
             if (innerException != null)
