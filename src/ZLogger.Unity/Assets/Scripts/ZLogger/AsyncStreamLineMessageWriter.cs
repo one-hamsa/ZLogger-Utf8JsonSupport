@@ -101,6 +101,11 @@ namespace ZLogger
         private readonly ConcurrentQueue<DateTimeOffset> postTimesQ                  = new();
         private readonly ConcurrentQueue<DateTimeOffset> postTimesTempQ              = new();
         private readonly ArrayBufferWriter<byte>         bufferWriterForDebugSpamMsg = new();
+
+        // Hashes of distinct messages already let through during the current spam episode, so the
+        // spam dropper never truncates a unique message — only its repeats are dropped. Guarded by
+        // lockObject (touched from Post and from the spam-exit transition), cleared when spam ends.
+        private readonly HashSet<long> seenDuringSpam = new();
         public int lastLogIdWritten { get; private set; }
         public int lastLogIdQueued { get; private set; }
 
@@ -167,8 +172,18 @@ namespace ZLogger
                     }
 
                     if (log.LogInfo.LogLevel is not LogLevel.Trace) {
-                        dropSummary[log.LogInfo.LogLevel]++;
-                        didDrop = true;
+                        // Truncation must not lose unique messages: let the first occurrence of each
+                        // distinct message through and only drop the repeats (the actual spam). A
+                        // unique error buried in a spam burst therefore still reaches the log.
+                        if (seenDuringSpam.Add(ComputeMessageHash(log)))
+                        {
+                            channel.Writer.TryWrite(log);
+                        }
+                        else
+                        {
+                            dropSummary[log.LogInfo.LogLevel]++;
+                            didDrop = true;
+                        }
                     }
                 }
                 else
@@ -180,6 +195,27 @@ namespace ZLogger
             }
         }
 
+        // Stable identity for a log entry, used to dedup repeats during spam mode. Formats the
+        // message into the reusable buffer (no per-call string allocation) and FNV-1a hashes the
+        // bytes together with the level, so two distinct messages map to different keys. Must be
+        // called under lockObject (it mutates the shared buffer writer).
+        private long ComputeMessageHash(IZLoggerEntry log)
+        {
+            bufferWriterForDebugSpamMsg.Clear();
+            log.FormatUtf8(bufferWriterForDebugSpamMsg, new(), null);
+            var span = bufferWriterForDebugSpamMsg.WrittenSpan;
+
+            const ulong fnvOffsetBasis = 14695981039346656037;
+            const ulong fnvPrime       = 1099511628211;
+
+            ulong hash = fnvOffsetBasis;
+            hash = (hash ^ (byte)log.LogInfo.LogLevel) * fnvPrime;
+            for (int i = 0; i < span.Length; i++)
+                hash = (hash ^ span[i]) * fnvPrime;
+
+            return unchecked((long)hash);
+        }
+
         private bool CheckPostsTimesAndSetIsSpamming()
         {
             // fixes the issue where seeing summary without the actual logs
@@ -189,7 +225,14 @@ namespace ZLogger
                 bool? spamming = PostsTimesCheck();
                 if (spamming.HasValue)
                     lock (lockObject)
+                    {
+                        bool wasSpamming = isSpamming;
                         isSpamming = spamming.Value;
+                        // End of a spam episode: forget the messages we let through so the next
+                        // episode starts fresh (and the dedup set doesn't grow without bound).
+                        if (wasSpamming && !isSpamming)
+                            seenDuringSpam.Clear();
+                    }
 
                 return isSpamming;
             }
